@@ -58,10 +58,27 @@ input, button {
     font-size: 12px;
 }
 
-p.l1::before, p.l1 + p::before {
-    content: "• "
+p.l1:not(.up)::before, 
+.l1 + .fme + p.l2::before {
+    content: "• ";
 }
 
-.l2:not(.l1 + p) {
+.l2 + .fme + .l2 {
     margin-left: 15px;
+}
+
+
+.err {
+    background-color: rgb(225, 156, 156);
+}
+
+.fme {
+    display: flex;
+    opacity: .5;
+    justify-content: right;
+    font-size: 12px;
+}
+
+.fme .up {
+    font-size: 9px;
 }

@@ -55,18 +55,43 @@ function get_root(n) {
     let order = n-1
     for (let num = 1; num < n; num++) {
         let i = 1;
-        while ( ((Math.pow(num,i)) % n) != 1) {
+        while ( fme(num,i,n) != 1) {
             i+=1
             if (i == n) { break; }
             if (order == i) {
-                if (Math.pow(num,n-1)%n >= 2) { continue; } // Account for rounding errors
-                //log(`Found primitive root ${num} for ${n}`)
+                if (fme(num,n-1,n) >= 2) { continue; } // Account for rounding errors
                 c_roots[n] = Number(num)
                 update_cache()
                 return num
             }
         }
     }
+}
+
+// Shoutout Bruce Schneier: https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
+function fme(base,exponent,N,to_log=false) {
+    let target_exponent = new Number(exponent)
+    let target_base = new Number(base)
+
+    let result = 1
+    let result_str = ""
+    base = base%N
+    while (exponent > 0) {
+        if (exponent%2 == 1) {
+            result_str += `(${base})`
+            result = (result*base)%N
+        }
+        exponent = exponent >> 1
+        base = (base*base)%N
+    }
+    if (to_log ) {
+        if ((result_str.match(/\)/g) || []).length > 1 ) {
+            log(`FME: ${target_base}<span class="up">${target_exponent}</span> mod ${N} = ${result_str} mod ${N} = ${result}`,"fme")
+        } else {
+            log(``,"fme")
+        }
+    }
+    return result
 }
 
 ////
@@ -100,8 +125,6 @@ function prime_factorize(n) {
             factors.push(prime)
         }
     })
-
-    
     return factors
 }
 
@@ -114,13 +137,20 @@ function generate_tree(prime, parent) {
     if (prime != 2) {
         let root = get_root(prime);
         text = `${prime}, g=${root}`
+
         log(`<span class="parent-log">V = ${prime}, g = ${root}</span>:`)
+        if (root === undefined) {
+            log(`No primitive root g<span class="up">${prime-1}</span> ≅ 1 mod ${prime}`,"err")
+            return
+        }
         log(`${prime}-1 = ${prime-1} = ${p_fs.join("x")}`)
-        log(`g<span class="up l1">V-1</span> = ${root}<span class="up">${prime-1}</span> = ${Math.pow(root,prime-1)} ≅ 1 mod ${prime}`,"l1")
-    
+        log(`g<span class="up l1">V-1</span> = ${root}<span class="up">${prime-1}</span> ≅ 1 mod ${prime}`,"l1")
+        fme(root,prime-1,prime,true)
+
         var p_set = Array.from(new Set(p_fs));
         for (let p = 1; p <= p_set.length; p++) {
-            log(`g<span class="up">V-1/p${p}</span> = ${root}<span class="up">${(prime-1)}/${p_set[p-1]}</span> = ${root}<span class="up">${(prime-1)/p_set[p-1]}</span> = ${Math.pow(root,(prime-1)/p_set[p-1])} = ${(Math.pow(root,(prime-1)/p_set[p-1]))%prime} ≢ 1 mod ${prime}`,"l2")
+            log(`g<span class="up">V-1/p${p}</span> = ${root}<span class="up">${(prime-1)}/${p_set[p-1]}</span> = ${root}<span class="up">${(prime-1)/p_set[p-1]}</span> = ${fme(root,(prime-1)/p_set[p-1],prime)} ≢ 1 mod ${prime}`,"l2")
+            fme(root,(prime-1)/p_set[p-1],prime,true)
         }
     }
 
@@ -143,6 +173,7 @@ function start() {
 
 
     let prime = document.getElementById("prime").value
+    if (prime == "") { return; } //demo mode
 
     if (!is_prime(prime)) { 
         log(`${prime} is not a prime!`)
