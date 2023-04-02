@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Pratt Certificate Generator</title>
+        <meta name="description" content="A tool to generate Vaughan Pratt primality certificates">
+        <meta name="keywords" content="vaughan pratt certificates primality generator prime">
+        <script src="prat.js"></script>
+        <link href="style.css" rel="stylesheet">
+    </head>
+<body>
+    <div id="control">
+        <h1>Pratt Certificate Generator</h1>
+        <p>Submit any <a href="https://en.wikipedia.org/wiki/List_of_prime_numbers" target="_blank">prime number</a> and watch the certificate generate!</p>
+        <p style="font-size: 12px;"><a href="http://boole.stanford.edu/pub/SucCert.pdf" target="_blank">Vaughan Pratt. "Every prime has a succinct certificate". SIAM Journal on Computing, vol. 4, pp. 214–220. 1975.</a></p>
+        <div id="input">
+            <input id="prime" value="137"></input>
+            <button onclick="random_prime()">🎲</button>
+            <button id="submitbtn" onclick="start()">Go</button>
+        </div>
+    </div>
+    <div id="0">
+    </div>
+    <div id="output">
+    </div>
+</body>
+</html>
+
